@@ -2,8 +2,8 @@
  * @Author: Xiyuan Yang   xiyuan_yang@outlook.com
  * @Date: 2025-01-22 15:06:31
  * @LastEditors: Xiyuan Yang   xiyuan_yang@outlook.com
- * @LastEditTime: 2025-01-22 17:02:18
- * @FilePath: \CODE_for_Vscode\Data_structure\Specific_USage\Stack.cpp
+ * @LastEditTime: 2025-01-22 17:23:51
+ * @FilePath: \CODE_for_Vscode\Data_structure\Class_implementation\Stack.cpp
  * @Description: 
  * Do you code and make progress today?
  * Copyright (c) 2025 by Xiyuan Yang, All Rights Reserved. 
