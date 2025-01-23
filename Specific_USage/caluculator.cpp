@@ -9,27 +9,27 @@ using namespace std;
 
 class Calculate {
 private:
-    string expression;  // 存储用户输入的表达式
-    bool check_if_available();  // 检查表达式是否合法
+    string expression;  // Store the user input expression
+    bool check_if_available();  // Check if the expression is valid
 public:
     Calculate(string input_ = "No input") : expression(input_) {
-        // 删除空白字符
+        // Remove whitespace characters
         expression.erase(std::remove_if(expression.begin(), expression.end(), ::isspace), expression.end());
     }
-    double calculate_result();  // 计算表达式的结果
+    double calculate_result();  // Calculate the result of the expression
 };
 
-// 检查字符是否是运算符
+// Check if a character is an operator
 inline bool check_op(char ch) {
     return ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '^';
 }
 
-// 检查字符是否是括号
+// Check if a character is a parenthesis
 inline bool check_Parentheses(char ch) {
     return ch == '(' || ch == ')';
 }
 
-// 根据运算符计算两个操作数的结果
+// Calculate the result of two operands based on the operator
 double cal(char op, double a, double b) {
     switch (op) {
         case '+': return a + b;
@@ -37,20 +37,20 @@ double cal(char op, double a, double b) {
         case '*': return a * b;
         case '/': return a / b;
         case '^': return pow(a, b);
-        default: return 0;  // 默认返回 0
+        default: return 0;  // Default return 0
     }
 }
 
-// 执行栈操作：弹出运算符和操作数，计算结果并压入栈中
+// Perform stack operation: Pop operator and operands, calculate the result, and push it back to the stack
 void Stack_operation(stack<double>& numstack, stack<char>& opstack) {
-    char op = opstack.top();  // 弹出栈顶运算符
+    char op = opstack.top();  // Pop the top operator
     opstack.pop();
-    double num1 = numstack.top(); numstack.pop();  // 弹出第一个操作数
-    double num2 = numstack.top(); numstack.pop();  // 弹出第二个操作数
-    numstack.push(cal(op, num2, num1));  // 计算结果并压入栈中
+    double num1 = numstack.top(); numstack.pop();  // Pop the first operand
+    double num2 = numstack.top(); numstack.pop();  // Pop the second operand
+    numstack.push(cal(op, num2, num1));  // Calculate the result and push it back to the stack
 }
 
-// 检查表达式是否合法
+// Check if the expression is valid
 bool Calculate::check_if_available() {
     if (expression == "No input") {
         cout << "Please input a string!" << endl;
@@ -58,47 +58,47 @@ bool Calculate::check_if_available() {
     }
 
     int size = expression.length();
-    stack<char> parentheses;  // 用于检查括号匹配
+    stack<char> parentheses;  // Used to check parenthesis matching
 
     for (int i = 0; i < size; i++) {
         char ch = expression[i];
 
-        // 检查括号
+        // Check parentheses
         if (check_Parentheses(ch)) {
             if (ch == '(') {
-                parentheses.push('(');  // 左括号入栈
+                parentheses.push('(');  // Push left parenthesis onto the stack
             } else {
                 if (parentheses.empty() || parentheses.top() != '(') {
                     cout << "Parentheses match fault!" << endl;
                     return false;
                 }
-                parentheses.pop();  // 右括号匹配成功，弹出左括号
+                parentheses.pop();  // Right parenthesis matched successfully, pop the left parenthesis
             }
         }
 
-        // 检查运算符
+        // Check operators
         else if (check_op(ch)) {
             if (i == 0 || i == size - 1) {
                 cout << "Operation Error!" << endl;
                 return false;
             }
 
-            char prev = expression[i - 1];  // 运算符前一个字符
-            char next = expression[i + 1];  // 运算符后一个字符
+            char prev = expression[i - 1];  // Character before the operator
+            char next = expression[i + 1];  // Character after the operator
             if (!((isdigit(prev) || prev == ')') && (isdigit(next) || next == '('))) {
                 cout << "Operation Error!" << endl;
                 return false;
             }
         }
 
-        // 检查非法字符
+        // Check for invalid characters
         else if (!isdigit(ch) && ch != '.') {
             cout << "INVALID LETTERS" << endl;
             return false;
         }
     }
 
-    // 检查括号是否全部匹配
+    // Check if all parentheses are matched
     if (!parentheses.empty()) {
         cout << "Parentheses match fault!" << endl;
         return false;
@@ -107,46 +107,46 @@ bool Calculate::check_if_available() {
     return true;
 }
 
-// 计算表达式的结果
+// Calculate the result of the expression
 double Calculate::calculate_result() {
     if (!this->check_if_available()) {
         cout << "Wrong!" << endl;
         exit(1);
     }
 
-    stack<char> opstack;  // 运算符栈
-    stack<double> numstack;  // 操作数栈
+    stack<char> opstack;  // Operator stack
+    stack<double> numstack;  // Operand stack
     int size = expression.length();
 
     for (int i = 0; i < size; i++) {
         char ch = expression[i];
 
-        // 处理数字和小数点
+        // Handle digits and decimal points
         if (isdigit(ch) || ch == '.') {
             stringstream ss;
             while (i < size && (isdigit(expression[i]) || expression[i] == '.')) {
-                ss << expression[i++];  // 将数字和小数点拼接到字符串流中
+                ss << expression[i++];  // Concatenate digits and decimal points into the string stream
             }
-            i--;  // 回退一步，因为外层循环会再增加一次 i
+            i--;  // Step back once because the outer loop will increment i again
             double num;
-            ss >> num;  // 将字符串流转换为浮点数
-            numstack.push(num);  // 将数字压入操作数栈
+            ss >> num;  // Convert the string stream to a floating-point number
+            numstack.push(num);  // Push the number onto the operand stack
         }
 
-        // 处理运算符和括号
+        // Handle operators and parentheses
         else {
             switch (ch) {
                 case '(':
-                    opstack.push(ch);  // 左括号直接入栈
+                    opstack.push(ch);  // Push left parenthesis directly onto the stack
                     break;
 
                 case ')':
-                    // 弹出栈顶运算符并计算，直到遇到左括号
+                    // Pop the top operator and calculate until a left parenthesis is encountered
                     while (!opstack.empty() && opstack.top() != '(') {
                         Stack_operation(numstack, opstack);
                     }
                     if (!opstack.empty() && opstack.top() == '(') {
-                        opstack.pop();  // 弹出左括号
+                        opstack.pop();  // Pop the left parenthesis
                     } else {
                         cout << "Parentheses match fault!" << endl;
                         exit(1);
@@ -154,44 +154,44 @@ double Calculate::calculate_result() {
                     break;
 
                 case '^':
-                    // 乘方运算符优先级最高，直接入栈
+                    // Exponentiation operator has the highest priority, push directly onto the stack
                     opstack.push(ch);
                     break;
 
                 case '*':
                 case '/':
-                    // 处理乘法和除法运算符
+                    // Handle multiplication and division operators
                     while (!opstack.empty() && opstack.top() != '(' &&
                         (opstack.top() == '^' || opstack.top() == '*' || opstack.top() == '/')) {
                         Stack_operation(numstack, opstack);
                     }
-                    opstack.push(ch);  // 当前运算符入栈
+                    opstack.push(ch);  // Push the current operator onto the stack
                     break;
 
                 case '+':
                 case '-':
-                    // 处理加法和减法运算符
+                    // Handle addition and subtraction operators
                     while (!opstack.empty() && opstack.top() != '(' &&
                         (opstack.top() == '^' || opstack.top() == '*' || opstack.top() == '/' ||
                             opstack.top() == '+' || opstack.top() == '-')) {
                         Stack_operation(numstack, opstack);
                     }
-                    opstack.push(ch);  // 当前运算符入栈
+                    opstack.push(ch);  // Push the current operator onto the stack
                     break;
 
                 default:
-                    // 非法字符（已经在 check_if_available 中检查过，这里不会执行）
+                    // Invalid character (already checked in check_if_available, won't execute here)
                     break;
             }
         }
     }
 
-    // 清空栈中剩余的运算符
+    // Clear remaining operators in the stack
     while (!opstack.empty()) {
         Stack_operation(numstack, opstack);
     }
 
-    // 返回最终结果
+    // Return the final result
     return numstack.top();
 }
 
@@ -206,4 +206,3 @@ int main() {
     }
     return 0;
 }
-
