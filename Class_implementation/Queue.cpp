@@ -2,7 +2,7 @@
  * @Author: Xiyuan Yang   xiyuan_yang@outlook.com
  * @Date: 2025-01-22 15:06:31
  * @LastEditors: Xiyuan Yang   xiyuan_yang@outlook.com
- * @LastEditTime: 2025-01-23 11:20:24
+ * @LastEditTime: 2025-01-23 12:13:29
  * @FilePath: \CODE_for_Vscode\Data_structure\Class_implementation\Queue.cpp
  * @Description: 
  * Do you code and make progress today?
@@ -12,7 +12,6 @@
 This is the implementation of the stack
 */
 
-#pragma once
 #include <stdexcept>
 #include <iostream>
 
@@ -40,6 +39,7 @@ class seqQueue : public queue<T>{
         void DoubleSpace();//Tool functions for space extensions
     public:
         seqQueue(int size = 10);
+        // Todo: implement copy constructor and the overload of = (assignment)
         ~seqQueue();
         bool isEmpty() const;
         void push(const T& value);
@@ -137,8 +137,137 @@ int seqQueue<T>::length() const{
     else return rear + maxsize - front;
 }
 
-//Linked implementation of queue
+//Linked implementation of queue (The definition)
 
+
+template <class T>
+class linkQueue : public queue<T>{
+    private:
+        struct Node
+        {
+            T data;
+            Node* next;
+            //parameterized constructor(default)
+            Node(const T& value = 0, Node *p = nullptr){
+                data = value;
+                next = p;
+            }
+            //destructor
+            ~Node(){}
+        };
+        Node *front, *rear;
+        //two pointers point at the front or the end of the queue.
+    public:
+        linkQueue();
+        //This constructor is used to create a new linked queue.
+        //Todo: implement copy constructor and the overload of = (assignment)
+        ~linkQueue();
+        bool isEmpty() const;
+        T pop();
+        T getHead() const;
+        void push(const T& value);
+
+        //for debugging
+        void print() const;
+        int length() const;
+        
+};
+
+
+//Implementation of linked queue
+template <class T>
+linkQueue<T>::linkQueue(){
+    //set nullptr for both pointers
+    front = rear = nullptr;
+    //it is also the judgement of an empty queue
+}
+
+template <class T>
+linkQueue<T>::~linkQueue(){
+    Node * temp;
+    while(front != nullptr){
+        //simulate the process of leaving the queue until the queue is empty.
+        temp = front;
+        front = front -> next;
+        delete temp;
+    }
+}
+
+template <class T>
+bool linkQueue<T>::isEmpty() const {
+    return front == nullptr;
+}
+
+template <class T>
+T linkQueue<T>::getHead() const{
+    if (isEmpty()) {
+        throw std::runtime_error("Queue is empty");
+    }
+    return front -> data;
+}
+
+template <class T>
+void linkQueue<T>::push(const T& value){
+    if(isEmpty()){
+        front = rear = new Node(value);
+    }else{
+        Node *newnode = new Node(value);
+        rear -> next = newnode;
+        rear = rear -> next;
+        //! ensure the rear -> next often points to the nullptr
+    }
+}
+
+template <class T>
+T linkQueue<T>::pop(){
+    if (isEmpty()) {
+        throw std::runtime_error("Queue is empty");
+    }else{
+        T ans = front -> data;
+        Node* tmp = front;
+        front = front -> next;
+        if(front == nullptr){
+            rear = nullptr;
+            //now the queue is empty!
+            //This is necessary, because before the pop process, the front and the rear pointer points at the same space
+            //now front moves to nullptr, rear pointer becomes INVALID! 
+        }
+        delete tmp;
+        return ans;
+    }
+}
+
+template <class T>
+int linkQueue<T>::length() const {
+    if(isEmpty()){
+        return 0;
+    }
+    int length=0;
+    Node* traverseptr = front;
+    while(traverseptr != nullptr){
+        traverseptr = traverseptr -> next;
+        length++; 
+    }
+    return length;
+}
+
+template <class T>
+void linkQueue<T>::print()const {
+    if(isEmpty()){
+        std::cout << "The queue is empty!" << std::endl;
+        return;
+    }else{
+        int length=0;
+        Node* traverseptr = front;
+        while(traverseptr != nullptr){
+            std::cout << traverseptr -> data << " ";
+            traverseptr = traverseptr -> next;
+            length++; 
+        }
+        std::cout << std::endl;
+        std::cout << "The queue has " << length << " elements" << std::endl;
+    }
+}
 
 //The main function is used for Debugging only.
 int main(){
@@ -151,5 +280,22 @@ int main(){
     std::cout << list.pop();
     std::cout << list.pop();
     std::cout << list.isEmpty() << std::endl;
+    //The debug of link queue
+    std::cout << std::endl;
+    linkQueue<int> list2;
+    list2.print();
+    for(int i = 0; i < 5; i++){
+        list2.push(i * i);
+        list2.print();
+    }
+
+    std::cout << list2.isEmpty() << std::endl;
+    for (int i = 0; i < 5; i++)
+    {
+        std::cout << list2.pop() <<std::endl;
+        list2.print();
+    }
+    
+    std::cout << list2.isEmpty() << std::endl;
     return 0;
 }
