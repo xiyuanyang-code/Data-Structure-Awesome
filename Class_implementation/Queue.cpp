@@ -2,7 +2,7 @@
  * @Author: Xiyuan Yang   xiyuan_yang@outlook.com
  * @Date: 2025-01-22 15:06:31
  * @LastEditors: Xiyuan Yang   xiyuan_yang@outlook.com
- * @LastEditTime: 2025-01-22 23:49:35
+ * @LastEditTime: 2025-01-23 11:20:24
  * @FilePath: \CODE_for_Vscode\Data_structure\Class_implementation\Queue.cpp
  * @Description: 
  * Do you code and make progress today?
@@ -28,7 +28,7 @@ class queue{
         virtual T pop()=0;
         virtual void push(const T& value)= 0;
 };
-//抽象基类仅仅定义接口，没有具体的数据成员
+//The abstract class has no data members, only providing the interface
 
 //Sequential Implementation of stack
 template <class T>
@@ -78,7 +78,7 @@ bool seqQueue<T>::isEmpty() const{
 
 template <class T>
 void seqQueue<T>::push(const T& value){
-    //入队操作，需要对rear操作
+    //Enter the queue, operate on the rear
     if((rear + 1) % maxsize == front){
         //judge if the queue is full
         DoubleSpace();
@@ -93,7 +93,7 @@ T seqQueue<T>::pop(){
     if (isEmpty()) {
         throw std::runtime_error("Queue is empty");
     }
-    //出队操作，对front操作
+    //leave the queue, operate on the front
     T temp = elem[front];//the top element of the queue
     front = (front + 1)%maxsize;
     return temp;
@@ -137,6 +137,7 @@ int seqQueue<T>::length() const{
     else return rear + maxsize - front;
 }
 
+//Linked implementation of queue
 
 
 //The main function is used for Debugging only.
