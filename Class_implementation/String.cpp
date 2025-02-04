@@ -1,10 +1,8 @@
-/*
-This is the implementation of hand-made string
-*/
 #include <stdexcept>
 #include <iostream>
 #include <algorithm> //just for the min function
 #include <cstring>
+#include <cmath>  //for sqrt() function
 
 
 //Sequential implementation of string
@@ -278,7 +276,291 @@ std::ostream& operator<<(std::ostream& os, const seqString& s){
 }
 
 
-//main function is used for debugging only
+
+
+
+/*
+The linked implementation of string
+*/
+
+class linkString{
+    friend linkString operator+(const linkString& s1, const linkString& s2);
+    friend bool operator==(const linkString& s1, const linkString& s2);
+    friend bool operator!=(const linkString& s1, const linkString& s2);
+    friend bool operator>(const linkString& s1, const linkString& s2); 
+    friend bool operator>=(const linkString& s1, const linkString& s2);
+    friend bool operator<(const linkString& s1, const linkString& s2);
+    friend bool operator<=(const linkString& s1, const linkString& s2);
+    friend std::istream& operator>>(std::istream& is,  linkString& s);
+    friend std::ostream& operator<<(std::ostream& os, const linkString& s);
+
+    struct node
+    {
+        int size;    //valuable numbers of chars in a block node
+        char *data;
+        node *next;
+
+        //constructor
+        node(int maxsize_ = 1, node *n_ = nullptr){
+            data = new char [maxsize_];
+            size = 0;
+            next = n_;
+        }
+    };
+
+    private:
+        node *head; //head pointer
+        int length;  //length of the string
+        int nodesize; //capacity for every block node
+
+        //several private function tools
+        void clear();  //release all the memories
+        void findPos(int start, int& pos, node *&p) const; // find the position of the certain node
+        void split(node *p, int pos);  //split nodes
+        void merge(node *p);  //merge nodes
+
+    public:
+        linkString(const char* s = "");          // Constructor with default parameter
+        linkString(const linkString& other);     // Copy constructor
+        ~linkString();                           // Destructor
+        linkString& operator=(const linkString& other);  // Assignment operator overload
+        linkString& operator+=(const linkString& other); // Compound assignment operator overload (concatenation)
+        linkString& operator-=(const linkString& other); // Compound assignment operator overload (removal)
+        char operator[](int index) const;                // Subscript operator overload
+        void insert(int start, const linkString& other, int insertsize = -1); // Insert operation
+        void remove(int deletelength, int start = -1);   // Remove operation
+        int getlength() const;                              // Get the length of the string
+        bool isEmpty() const;                            // Check if the string is empty
+        linkString substr(int start, int sublength) const;    // Get a substring
+};
+
+//definition
+
+//default constructor
+linkString::linkString(const char *s){
+    //calculate the length of the string, you can just use strlen!
+    length = std::strlen(s);
+    nodesize = (length == 0) ? 1 : static_cast<int>(std::sqrt(length));
+    node *p;
+    p = head = new node(1);
+    while ( s != '\0'){
+        p = p->next = new node(nodesize);
+        for(; p->size < nodesize && s != '\0'; ++s, ++p->size){
+            p->data[p->size] = *s;
+        }
+    }
+}
+
+//copy constructor
+linkString::linkString(const linkString& other){
+    node *p, *otherp = other.head -> next;
+
+    //copy the new linkstring
+    p = head = new node(1);
+    length = other.length;
+    nodesize = other.nodesize;
+    while(otherp != nullptr){
+        p = p->next = new node (nodesize);
+        for(; p->size < otherp->size; ++p->size){
+            //if p->size == other->size ,then all the valuable data has been copied successfully.
+            p->data[p->size] = otherp->data[p->size];
+        }
+        otherp = otherp -> next; //traverse the other link string
+    }
+}
+
+/**
+ * @brief clear all the memory of the linked list (private func)
+ */
+void linkString::clear(){
+    node *p = head ->next, *nextp;
+    //nextp store next pointer temporarily
+    while (p != nullptr){
+        nextp = p ->next;
+        delete p;
+        p = nextp;
+    }
+}
+
+/**
+ * @brief destructor
+ */
+linkString::~linkString(){
+    clear();
+    delete head;
+}
+
+/**
+ * @brief get the length of the string (public func)
+ * @return the length of string
+ */
+int linkString::getlength() const {
+    return length;
+}
+
+/**
+ * @brief judge whether the string is empty
+ */
+bool linkString::isEmpty() const{
+    return length == 0;
+}
+
+/**
+ * @brief overload of assignment operator
+ * 
+ * @param other the rvalue (const reference) of the assignment operator
+ * @return the reference of the assigned lvalue
+ */
+linkString& linkString::operator=(const linkString& other){
+    if(&other == this) return *this;
+    node *p = head;
+    node *otherp = other.head->next;
+
+    clear(); //clear all the memory of the previous string except for the head node.
+    length = other.length;
+    nodesize = other.nodesize;
+    while (otherp != nullptr){
+        p = p->next = new node [nodesize];
+        for(; p->size < otherp->size; p->size++){
+            p->data[p->size] = otherp->data[p->size];
+        }
+    }
+    return *this;
+}
+
+/**
+ * @brief find the starting position of a given position
+ * 
+ * @param start the given position (or index)
+ * @param pos find the position in the node (reference)
+ * @param p find the node where the start lies in
+ */
+void linkString::findPos(int start, int& pos, node *&p) const{
+    int count = 0;//define a counter
+    p = head -> next;//the first node(pointer)
+    
+    while(count < start){
+        if(count + p->size < start){
+            //the start isn't in this node!
+            count += p->size;
+            p = p->next;
+        }else{
+            //the start is in this node!
+            pos = start - count;
+            return;
+        }
+    }
+}
+
+/**
+ * @brief get a substring
+ * 
+ * @param start the start position
+ * @param sublength the length of the substring
+ * @throws std::out_of_range If pos is out of range.
+ */
+linkString linkString::substr(int start, int sublength) const{
+    linkString tmp; //storing result
+    int count = 0;
+    int pos = 0;
+    node *p, *tp = tmp.head;
+
+    if(start < 0 || start >= length){
+        throw std::out_of_range("Invalid starting position!");
+    }else{
+        // if the length left is smaller than the given sublength:
+        if(start + sublength >= length){
+            sublength = length - start;
+        }
+
+        tmp.length = sublength;
+        tmp.nodesize = (sublength == 0) ? 1 : static_cast<int>(std::sqrt(sublength));
+
+        //use the findPos function to find p and pos
+        findPos(start, pos, p);
+
+        //after getting the starting position, we can copy the substring!
+        for(int index = 0; index < tmp.length;){
+            /*
+             * two for-loop layers, index represents the substring index
+             * inner loop is used to copy every block, while the outer loop is used to update the block.
+             */
+            tp = tp->next = new node(tmp.nodesize);
+            while(tp->size <= tmp.nodesize && index < tmp.length){
+                if(pos == p->size){
+                    /*
+                     * the traverse has ended in the block.
+                     * p needs to be updated to the next block.
+                    */
+                    p = p->next;
+                    pos = 0;
+                }
+                tp->data[tp->size] = p->data[pos];
+
+                //value update
+                pos++;
+                index++;
+                tp->size++;
+            }
+        }
+        return tmp;
+    }
+}
+
+
+/**
+ * @brief Split operations for a block (one to two) (private func).
+ *
+ * @param p The node to be split.
+ * @param pos The specific index where the split happens (the pos position is moved to the second node).
+ * @throws std::out_of_range If pos is out of range.
+ */
+void linkString::split(node *p, int pos) {
+    // Check if p is nullptr
+    if (p == nullptr) {
+        throw std::invalid_argument("The node to be split is null.");
+    }
+
+    // Check if pos is within the valid range
+    if (pos < 0 || pos > p->size) {
+        throw std::out_of_range("The split position is out of range.");
+    }
+
+    // Create a new node and insert it after p
+    node *nextp = new node(nodesize, p->next);
+    p->next = nextp;
+
+    // Move data from p to nextp
+    for (int i = pos; i < p->size; i++) {
+        nextp->data[i - pos] = p->data[i];
+    }
+
+    // Update sizes of both nodes
+    nextp->size = p->size - pos; // Size of the new node
+    p->size = pos;               // Size of the original node after split
+}
+
+
+/**
+ * @brief merge two nodes into one
+ * 
+ * @param p one of the nodes that need to be merged 
+ */
+void linkString::merge(node *p){
+    if(p == nullptr || p->next == nullptr) return;
+    node *nextp = p->next;
+    if(p->size + nextp->size <= nodesize){
+        //merge available
+        for(int pos = 0; pos < nextp->size; ++pos,++p->size){
+            p->data[p->size] = nextp->data[pos];
+        }
+        p->next = nextp->next;
+        delete nextp;
+    }
+}
+
+
+
 // Main function for debugging
 int main() {
     seqString s1("Hello");
