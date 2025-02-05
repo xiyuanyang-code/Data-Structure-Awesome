@@ -4,10 +4,11 @@
 #include <cstring>
 #include <cmath>  //for sqrt() function
 #include <cassert>
+#include <vector> //for KMP only
 
 
 //Sequential implementation of string
-class seqString{
+class seqString {
     friend seqString operator+(const seqString& s1, const seqString& s2);
     friend bool operator==(const seqString& s1, const seqString& s2);
     friend bool operator!=(const seqString& s1, const seqString& s2);
@@ -347,7 +348,7 @@ linkString::linkString(const char *s){
     p = head = new node(1);
     while ( *s != '\0'){
         p = p->next = new node(nodesize);
-        for(; p->size < nodesize && *s != '\0'; ++s, ++p->size){
+        for(; (p->size < nodesize) && *s != '\0'; ++s, ++p->size){
             p->data[p->size] = *s;
         }
     }
@@ -363,7 +364,7 @@ linkString::linkString(const linkString& other){
     nodesize = other.nodesize;
     while(otherp != nullptr){
         p = p->next = new node (nodesize);
-        for(; p->size < otherp->size; ++p->size){
+        for(; (p->size) < (otherp->size); ++(p->size)){
             //if p->size == other->size ,then all the valuable data has been copied successfully.
             p->data[p->size] = otherp->data[p->size];
         }
@@ -921,76 +922,141 @@ void linkString::visualPrint() const{
     }
 }
 
-//The debug function for link String
-#include <iostream>
-#include <cassert>
 
-void basicTestForLinkString() {
-    // 基础构造函数测试
-    linkString s1("Hello");
-    std::cout << "s1: " << s1 << " (Length: " << s1.getlength() << ")\n";
-    s1.visualPrint();
 
-    // 拷贝构造函数测试
-    linkString s2 = s1;
-    std::cout << "\nCopied s2: " << s2 << std::endl;
-    assert(s1 == s2);
 
-    // 赋值运算符测试
-    linkString s3;
-    s3 = s1;
-    std::cout << "Assigned s3: " << s3 << std::endl;
-    assert(s3 == s1);
 
-    // 拼接测试
-    s1 += " World";
-    std::cout << "\nAfter +=: " << s1 << std::endl;
-    assert(s1.getlength() == 11);
+/*
+*The following code is for string-match problems
+*We use our handmade string for sequence implementation
+*/
+//declaration
+void outermatch(seqString target, seqString totalString, int (*string_match_algorithm[])(seqString, seqString), int func_choice);
+int complexStringMatch(seqString target, seqString totalString);
+int KMP(seqString target, seqString totalString);
+void computeLPS(const seqString& pattern, std::vector<int>& next);
 
-    // 子串测试
-    linkString substr = s1.substr(6, 5);
-    std::cout << "Substr(6,5): " << substr << std::endl;
-    assert(substr == "World");
 
-    // 插入测试
-    s1.insert(5, " C++");
-    std::cout << "\nAfter insert: " << s1 << std::endl;
-    assert(s1.getlength() == 15);
-
-    // 删除测试
-    s1.remove(4, 5);
-    std::cout << "After remove: " << s1 << std::endl;
-    assert(s1.getlength() == 11);
-
-    // 比较运算符测试
-    linkString cmp("Hello World");
-    std::cout << "\nComparison: " << (s1 > cmp ? "GT" : (s1 < cmp ? "LT" : "EQ")) << std::endl;
+/**
+ * @brief The outer message output of string-matching problems
+ * 
+ * @param target The target string needs to be matched
+ * @param total_string The whole string that needs to be detected
+ * @param string_match_algorithm The specific string-match problems
+ * @param func_choice Choose one algorithm
+ */
+void outermatch(seqString target, seqString totalString, int (*string_match_algorithm[])(seqString, seqString), int func_choice){
+    int index = string_match_algorithm[func_choice](target,totalString);
+    std::cout << "Using " << func_choice << "th algorithm" << std::endl;
+    if (index == -1){
+        std::cout << "Unfortunately, the match fails." << std::endl;
+        std::cout << "The string " << totalString << " does not have a substring " << target << std::endl;
+    }else{
+        std::cout << "Got it!" << std::endl;
+        std::cout << "There exits a target string with the index of " << index << " and with the length of " << target.length() << std::endl;
+        std::cout << "Which means there exists a substr: " << totalString.substr(index, target.length()) <<" ,which matches with target: " << target << std::endl;
+    }
 }
 
 
-void edgeCaseTestForLinkString() {
-    // 空字符串测试
-    linkString empty;
-    assert(empty.isEmpty());
+/**
+ * @brief The most complex implementation of string-matching, using enumeration
+ * 
+ * @param target The target string needs to be matched
+ * @param total_string The whole string that needs to be detected
+ * 
+ * @return the index for the first match. return -1 if no match occurs.
+ */
+int complexStringMatch(seqString target, seqString totalString){
+    int target_length = target.length();
+    int total_length = totalString.length();
 
-    // 单字符测试
-    linkString single("A");
-    single.visualPrint();
+    if(total_length < target_length){
+        return false;
+    }
 
-    // 跨节点操作测试
-    linkString longStr("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-    std::cout << "\nLong string nodes:\n";
-    longStr.visualPrint();
+    for(int i = 0; i + target_length <= total_length; ++i){
+        seqString tmp = totalString.substr(i, target_length);
 
-    // 边界删除测试
-    longStr.remove(25, 0);
-    assert(longStr.getlength() == 1);
+        if(tmp == target){
+            //match successfully
+            return i;
+        }
+    }
+    return -1;
+}
+
+/**
+ * !KMP algorithm
+ * @brief of the Knuth-Morris-Pratt (KMP) algorithm
+ * 
+ * @param text The main text string to search within
+ * @param pattern The pattern string to search for
+ * @return The first occurrence index of the pattern in the text, or -1 if not found
+ */
+int KMP( seqString text,  seqString pattern) {
+    if (pattern.isEmpty()) return 0;
+    
+    int textLen = text.length();
+    int patLen = pattern.length();
+    std::vector<int> lps(patLen, 0);
+    computeLPS(pattern, lps);
+
+    int i = 0;   // text index
+    int j = 0;   // pattern index
+
+    while (i < textLen) {
+        if (pattern[j] == text[i]) {
+            ++i;
+            ++j;
+        }
+
+        if (j == patLen) {
+            return i - j;  // Found match
+        } else if (i < textLen && pattern[j] != text[i]) {
+            if (j != 0)
+                j = lps[j-1];
+            else
+                ++i;
+        }
+    }
+    return -1;
+}
+
+void computeLPS(const seqString& pattern, std::vector<int>& lps) {
+    int len = 0;  // length of previous longest prefix suffix
+    lps[0] = 0;   // lps[0] is always 0
+
+    for (int i = 1; i < pattern.length(); ) {
+        if (pattern[i] == pattern[len]) {
+            len++;
+            lps[i] = len;
+            i++;
+        } else {
+            if (len != 0) {
+                len = lps[len-1];
+            } else {
+                lps[i] = 0;
+                i++;
+            }
+        }
+    }
 }
 
 
 
-// Main function for debugging
-int main() {
+/*
+*The Debugging ToolBox
+*/
+//declaration
+void testPackageForSeqString();
+void testPackageForLinkString();
+void testPackageForKMP();
+void basicTestForSeqString();
+void basicTestForLinkString();
+void edgeCaseTestForLinkString();
+
+void basicTestForSeqString(){
     seqString s1("Hello");
     seqString s2("World");
 
@@ -1027,9 +1093,87 @@ int main() {
     std::cout << "s1 > s2: " << (s1 > s2) << std::endl;
     std::cout << "s1 < s2: " << (s1 < s2) << std::endl;
 
+}
 
-    std::cout << "Assert for the linkString " << std::endl;
+
+void basicTestForLinkString() {
     
+    // Basic constructor test
+    linkString s1("Hello");
+    std::cout << "s1: " << s1 << " (Length: " << s1.getlength() << ")\n";
+    s1.visualPrint();
+
+    // Copy constructor test
+    linkString s2 = s1;
+    std::cout << "\nCopied s2: " << s2 << std::endl;
+    assert(s1 == s2);
+
+    // Assignment operator test
+    linkString s3;
+    s3 = s1;
+    std::cout << "Assigned s3: " << s3 << std::endl;
+    assert(s3 == s1);
+
+    // Concatenation test
+    s1 += " World";
+    std::cout << "\nAfter +=: " << s1 << std::endl;
+    assert(s1.getlength() == 11);
+
+    // Substring test
+    linkString sub_str = s1.substr(6, 5);
+    std::cout << "Substr(6,5): " << sub_str << std::endl;
+    assert(sub_str == "World");
+
+    // Insertion test
+    s1.insert(5, " C++");
+    std::cout << "\nAfter insert: " << s1 << std::endl;
+    assert(s1.getlength() == 15);
+
+    // Deletion test
+    s1.remove(4, 5);
+    std::cout << "After remove: " << s1 << std::endl;
+    assert(s1.getlength() == 11);
+
+    // Comparison test
+    linkString cmp("Hello World");
+    std::cout << "\nComparison: " << (s1 > cmp ? "GT" : (s1 < cmp ? "LT" : "EQ")) << std::endl;
+}
+
+void edgeCaseTestForLinkString() {
+    // Empty string test
+    linkString empty;
+    assert(empty.isEmpty());
+
+    // Single character test
+    linkString single("A");
+    single.visualPrint();
+
+    // Cross-node operation test
+    linkString longStr("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    std::cout << "\nLong string nodes:\n";
+    longStr.visualPrint();
+
+    // Boundary deletion test
+    longStr.remove(25, 0);
+    assert(longStr.getlength() == 1);
+}
+
+
+
+
+
+void testPackageForSeqString(){
+    std::cout << "Assert for the SeqString " << std::endl;
+    try {
+        basicTestForSeqString();
+        std::cout << "\nAll tests passed!" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error: " << e.what() << std::endl;
+    }
+}
+
+void testPackageForLinkString(){
+    std::cout << "Assert for the linkString " << std::endl;
     try {
         basicTestForLinkString();
         edgeCaseTestForLinkString();
@@ -1037,5 +1181,41 @@ int main() {
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;
     }
+}
+
+void testPackageForKMP(){
+    seqString s1("Hello my name is YXY and I love learning DS");
+    seqString targets[] ={"Hello", "my", "MM"};
+    int (*string_match_algorithm[])(seqString, seqString) = {complexStringMatch,KMP};
+
+    for(int i = 0; i < 2; i++){
+        for(auto target: targets){
+            outermatch(target, s1, string_match_algorithm, i);
+        }
+    }
+}
+
+inline void divisionline(){
+    std::cout << std::endl;
+    std::cout << std::endl;
+    std::cout << "----------------------------------------------------------------------" << std::endl;
+    std::cout << "----------------------------------------------------------------------" << std::endl;
+    std::cout << std::endl;
+    std::cout << std::endl;
+}
+
+// Main function for debugging
+int main() {
+    divisionline();
+    testPackageForLinkString();
+    divisionline();
+
+    divisionline();
+    testPackageForSeqString();
+    divisionline();
+
+    divisionline();
+    testPackageForKMP();
+    divisionline();
     return 0;
 }
