@@ -3,6 +3,7 @@
 #include <algorithm> //just for the min function
 #include <cstring>
 #include <cmath>  //for sqrt() function
+#include <cassert>
 
 
 //Sequential implementation of string
@@ -90,7 +91,7 @@ seqString& seqString::operator-=(const seqString& other){
         this -> remove(len - other.length(), other.length());
         return *this;
     }else{
-        throw std::runtime_error("Unmatched string");
+        throw std::invalid_argument("The string cannot be removed!");
     }
 }
 
@@ -135,7 +136,7 @@ void seqString::insert(int start, const seqString& other, int insertsize){
 }
 
 //remove a substring from a certain position
-void seqString::remove(int deletelength,int start ){
+void seqString::remove(int deletelength, int start ){
     if(start == -1){
         //then delete the last leng characters from the back
         start = len - deletelength;
@@ -331,7 +332,8 @@ class linkString{
         void remove(int deletelength, int start = -1);   // Remove operation
         int getlength() const;                              // Get the length of the string
         bool isEmpty() const;                            // Check if the string is empty
-        linkString substr(int start, int sublength) const;    // Get a substring
+        linkString substr(int start, int sublength) const; // Get a substring
+        void visualPrint() const;
 };
 
 //definition
@@ -343,9 +345,9 @@ linkString::linkString(const char *s){
     nodesize = (length == 0) ? 1 : static_cast<int>(std::sqrt(length));
     node *p;
     p = head = new node(1);
-    while ( s != '\0'){
+    while ( *s != '\0'){
         p = p->next = new node(nodesize);
-        for(; p->size < nodesize && s != '\0'; ++s, ++p->size){
+        for(; p->size < nodesize && *s != '\0'; ++s, ++p->size){
             p->data[p->size] = *s;
         }
     }
@@ -411,20 +413,34 @@ bool linkString::isEmpty() const{
  * @param other the rvalue (const reference) of the assignment operator
  * @return the reference of the assigned lvalue
  */
-linkString& linkString::operator=(const linkString& other){
-    if(&other == this) return *this;
-    node *p = head;
-    node *otherp = other.head->next;
+linkString& linkString::operator=(const linkString& other) {
+    if (&other == this) return *this;
 
-    clear(); //clear all the memory of the previous string except for the head node.
+    // Clear the current list
+    clear();
+
+    // Copy the length and nodesize
     length = other.length;
     nodesize = other.nodesize;
-    while (otherp != nullptr){
-        p = p->next = new node [nodesize];
-        for(; p->size < otherp->size; p->size++){
-            p->data[p->size] = otherp->data[p->size];
+
+    // Copy the nodes
+    node* p = head;
+    node* otherp = other.head->next;
+
+    while (otherp != nullptr) {
+        p->next = new node(nodesize);
+        p = p->next;
+
+        // Copy the data
+        for (int i = 0; i < otherp->size; ++i) {
+            p->data[i] = otherp->data[i];
         }
+        p->size = otherp->size;
+
+        // Move to the next node in the other list
+        otherp = otherp->next;
     }
+
     return *this;
 }
 
@@ -559,6 +575,418 @@ void linkString::merge(node *p){
     }
 }
 
+/**
+ * @brief insert a string into linked string, using the findPos, split and merge functions
+ * 
+ * @param start the starting position (using findPos)
+ * @param other the string that needs to be inserted
+ * @param insertsize the length of the string needs to be inserted, default value for all string
+ */
+void linkString::insert(int start, const linkString& other, int insertsize){
+    if(insertsize == -1){
+        insertsize = other.length;
+    }
+
+    if(start < 0 || start > length){
+        throw std::out_of_range("The insert position is out of range");
+    }
+
+    if(insertsize < 0 || insertsize > other.length){
+        throw std::out_of_range("Invalid insertsize");
+    }
+
+    /*
+    * pos and p is calculated by func findPos, representing the insert position
+    * nextp is right after p, which is used for the split func
+    * after the insert, the merge function will be used
+    */
+    node *p ,*nextp, *tmp;
+    int pos = 0;
+    findPos(start, pos, p);
+    split(p, pos);
+
+    nextp = p->next; //nextp is used for stroage in case the link string is broken
+    linkString tobeinserted = other.substr(0,insertsize);
+    tmp = tobeinserted.head -> next;
+    while(tmp != nullptr){
+        //operate for every node
+        for(pos = 0; pos < tmp ->size; ++pos){
+            if(p->size == nodesize){
+                //need for expansion
+                p = p->next = new node (nodesize);
+            }
+            p->data[p->size] = tmp->data[pos];
+            ++p->size;
+        }
+        tmp = tmp->next;
+    }
+
+    length += insertsize;
+    p->next = nextp;
+    merge(p);   //see whether the merge is available
+}
+
+/**
+ * @brief Remove the specific part of a linked string
+ * 
+ * @param deletelength the length to be deleted
+ * @param start the starting position that needs tobe removed (the start itself is included), default for remove from the back
+ */
+void linkString::remove(int deletelength, int start){
+    if(start == -1){
+        start = length - deletelength;
+    }
+
+    if(start < 0 || start >= length){
+        throw std::runtime_error("Invalid starting position!");
+    }
+
+    //find the position to be removed
+    node *startp; //represent the starting position to be deleted
+    int pos = 0;
+    findPos(start, pos, startp);
+
+    split(startp, pos);//split the node
+
+    if(start + deletelength >= length){
+        deletelength = length - start;
+        length = start;
+        //if the deletelength goes over the edge
+    }else{
+        length -= deletelength;
+    }
+
+    while(true){
+        node *nextp = startp ->next;
+        if(deletelength > nextp->size){
+            //the end node is not here! Then delete this node!
+            deletelength -= nextp->size;
+            startp->next = nextp ->next;
+            delete nextp;
+        }else{
+            //the end node is here!
+            split(nextp,deletelength);
+            startp->next = nextp->next;
+            //now the nextp is all the data needs tobe deleted, while nextp->next stores the data remaining
+            delete nextp;
+            break; //jump out of the loop after the remove operation is done!
+        }
+    }
+    merge (startp);//merge all the startp;
+}
+
+/**
+ * @brief Overloads the [] operator to access a character at a specific index in the linkString.
+ * 
+ * @param index The position of the character to access (0-based index).
+ * @return The character at the specified index.
+ * @throws std::out_of_range If the index is invalid (less than 0 or greater than or equal to the string length).
+ */
+char linkString::operator[](int index) const {
+    if (index < 0 || index >= length) {
+        throw std::out_of_range("Index " + std::to_string(index) + " is out of range. Valid range is [0, " + std::to_string(length - 1) + "].");
+    }
+
+    node *current_node;  // Pointer to the node containing the target character
+    int node_position = 0;  // Position within the node
+    findPos(index, node_position, current_node);
+
+    return current_node->data[node_position];
+}
+
+/**
+ * @brief the overload function of += operator
+ * 
+ * @param other the linkString needs to be appended
+ * @return the reference of the appended string
+ */
+linkString& linkString::operator+=(const linkString& other){
+    this -> insert(length, other);
+    return *this;
+}
+
+
+
+/**
+ * @brief the overload function of -= operator
+ * 
+ * @param other the linkString needs to be poped (removed)
+ * @return the reference of the string
+ */
+linkString& linkString::operator-=(const linkString& other){
+    linkString tmp = substr(length - other.length, other.length);
+    if(tmp == other){
+        this -> remove(length - other.length, other.length);
+        return *this;
+    }else{
+        throw std::invalid_argument("The string cannot be removed!");
+    }
+}
+
+/**
+ * @brief the overload function of + operator
+ * 
+ * @param s1 the left plus string
+ * @param s2 the right plus string
+ * 
+ * @return a tmp value of the added string
+ */
+linkString operator+(const linkString& s1, const linkString& s2){
+    linkString ans = s1;
+    ans += s2;
+    return std::move(ans);
+}
+
+/**
+ * @brief judge whether the two strings is equal
+ * 
+ * @param s1 the left string needs to be judged
+ * @param s2 the right string needs to be judged
+ * 
+ * @return a bool value
+ */
+bool operator==(const linkString& s1, const linkString& s2){
+    if(s1.length != s2.length) return false;
+    //uses two pointers to traverse the linkString
+
+    linkString::node *p1 = s1.head->next;
+    linkString::node *p2 = s2.head->next;
+    int current_pos_for_s1 = 0;
+    int current_pos_for_s2 = 0;
+
+    while(p1 && p2){
+        //the end statement:one of the node* reacheds to the end
+        if(p1->data[current_pos_for_s1] != p2->data[current_pos_for_s2]){
+            return false;
+        }
+
+        //update the index
+        current_pos_for_s1++;
+        current_pos_for_s2++;
+
+        //update the node
+        if(current_pos_for_s1 == p1->size){
+            p1 = p1->next;
+            current_pos_for_s1 = 0;
+        }
+
+        if(current_pos_for_s2 == p2->size){
+            p2 = p2->next;
+            current_pos_for_s2 = 0;
+        }
+    }
+    return true;
+}
+
+/**
+ * @brief judge whether the two strings are not equal
+ * * All the parameters are equal to the == function
+ */
+bool operator!=(const linkString& s1, const linkString& s2){
+    return !(s1 == s2);
+}
+
+
+//several functions for string comparison
+
+/**
+ * @brief the sorted function for string comparison, if s1 > s2, then the func returns true.
+ */
+bool operator>(const linkString& s1, const linkString& s2){
+    //pointers for traverse
+    linkString::node *p1 = s1.head->next;
+    linkString::node *p2 = s2.head->next;
+    int current_pos_for_s1 = 0;
+    int current_pos_for_s2 = 0;
+
+    while(p1 != nullptr){
+        if(p1->data[current_pos_for_s1] < p2->data[current_pos_for_s2]){
+            return false;
+        }
+
+        if(p1->data[current_pos_for_s1] > p2->data[current_pos_for_s2]){
+            return true;
+        }
+
+        //update the index
+        current_pos_for_s1++;
+        current_pos_for_s2++;
+
+        //update the node
+        if(current_pos_for_s1 == p1->size){
+            p1 = p1->next;
+            current_pos_for_s1 = 0;
+        }
+
+        if(current_pos_for_s2 == p2->size){
+            p2 = p2->next;
+            current_pos_for_s2 = 0;
+        }
+    }
+    //whatever p2 is (nullptr or not), there is no possilbility s1>s2!
+    return false;
+}
+
+bool operator>=(const linkString& s1, const linkString& s2){
+    return s1 > s2 || s1 == s2;
+}
+
+bool operator<(const linkString& s1, const linkString& s2){
+    return !(s1 >= s2);
+}
+
+bool operator<=(const linkString& s1, const linkString& s2){
+    return !(s1 > s2);
+}
+
+/**
+ * @brief the overload function of << operator(for output)
+ * 
+ * @param os reference to the istream classes
+ * @param s the string that needs to be printed.
+ * 
+ * @return the l-value for os
+ */
+std::ostream& operator<<(std::ostream& os, const linkString& s){
+    //for traverse
+    linkString::node *p = s.head->next;
+
+    while(p != nullptr){
+        for(int index = 0; index < p->size; index++){
+            os << p->data[index];
+            //because the string doesnot have '\0', we cannot << it at a time.
+        }
+        p = p->next;
+    }
+
+    return os;
+}
+
+/**
+ * @brief the overload function of >> operator(for input)
+ * 
+ * @param is reference to the istream classes
+ * @param s the string that needs to be printed.
+ * 
+ * @return the l-value for is
+ */
+std::istream& operator>>(std::istream& is, linkString& s){
+    const int maxinputsize = 1024;
+    char *newstring = new char[maxinputsize];
+    int currrentlength = 0;
+    newstring[0] = '\0';
+
+    char current_ch;
+    while(is.get(current_ch) && current_ch != '\n'){
+        newstring[currrentlength] = current_ch;
+        currrentlength++;
+    }
+    newstring[currrentlength] = '\0';
+
+    linkString tmp (newstring);
+    s = tmp;
+
+    delete[] newstring;
+    return is;
+}
+
+/**
+ * @brief the visualization of linked string
+ * 
+ */
+void linkString::visualPrint() const{
+    //for traverse
+    node* current_node = head->next;
+    int current_node_count = 0;
+
+    std::cout << "The visualization for the linkString:" << std::endl;
+    std::cout << "The string has " << length << "characters" << std::endl;
+    
+
+    while(current_node != nullptr){
+        std::cout << "Node " << current_node_count +1 << ": " << std::endl;
+        std::cout << "  Address: " << current_node << std::endl;
+        std::cout << "  Size: " << current_node->size << std::endl;
+        std::cout << "  Data: ";
+
+        for (int i = 0; i < current_node->size; ++i) {
+            std::cout << current_node->data[i];
+        }
+        std::cout << std::endl;
+
+        std::cout << "----------------------------------------------------------------------" << std::endl;
+
+        current_node = current_node->next;
+        ++current_node_count;
+    }
+}
+
+//The debug function for link String
+#include <iostream>
+#include <cassert>
+
+void basicTestForLinkString() {
+    // 基础构造函数测试
+    linkString s1("Hello");
+    std::cout << "s1: " << s1 << " (Length: " << s1.getlength() << ")\n";
+    s1.visualPrint();
+
+    // 拷贝构造函数测试
+    linkString s2 = s1;
+    std::cout << "\nCopied s2: " << s2 << std::endl;
+    assert(s1 == s2);
+
+    // 赋值运算符测试
+    linkString s3;
+    s3 = s1;
+    std::cout << "Assigned s3: " << s3 << std::endl;
+    assert(s3 == s1);
+
+    // 拼接测试
+    s1 += " World";
+    std::cout << "\nAfter +=: " << s1 << std::endl;
+    assert(s1.getlength() == 11);
+
+    // 子串测试
+    linkString substr = s1.substr(6, 5);
+    std::cout << "Substr(6,5): " << substr << std::endl;
+    assert(substr == "World");
+
+    // 插入测试
+    s1.insert(5, " C++");
+    std::cout << "\nAfter insert: " << s1 << std::endl;
+    assert(s1.getlength() == 15);
+
+    // 删除测试
+    s1.remove(4, 5);
+    std::cout << "After remove: " << s1 << std::endl;
+    assert(s1.getlength() == 11);
+
+    // 比较运算符测试
+    linkString cmp("Hello World");
+    std::cout << "\nComparison: " << (s1 > cmp ? "GT" : (s1 < cmp ? "LT" : "EQ")) << std::endl;
+}
+
+
+void edgeCaseTestForLinkString() {
+    // 空字符串测试
+    linkString empty;
+    assert(empty.isEmpty());
+
+    // 单字符测试
+    linkString single("A");
+    single.visualPrint();
+
+    // 跨节点操作测试
+    linkString longStr("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    std::cout << "\nLong string nodes:\n";
+    longStr.visualPrint();
+
+    // 边界删除测试
+    longStr.remove(25, 0);
+    assert(longStr.getlength() == 1);
+}
+
 
 
 // Main function for debugging
@@ -599,5 +1027,15 @@ int main() {
     std::cout << "s1 > s2: " << (s1 > s2) << std::endl;
     std::cout << "s1 < s2: " << (s1 < s2) << std::endl;
 
+
+    std::cout << "Assert for the linkString " << std::endl;
+    
+    try {
+        basicTestForLinkString();
+        edgeCaseTestForLinkString();
+        std::cout << "\nAll tests passed!" << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error: " << e.what() << std::endl;
+    }
     return 0;
 }
