@@ -1176,7 +1176,7 @@ int KMP(seqString pattern, seqString text) {
             return i - j;  // Match found, return the starting index
         } else if (i < textLen && pattern[j] != text[i]) {
             if (j != 0) {
-                j = lps[j - 1];  // Fallback using the LPS array
+                j -= lps[j - 1];  // Fallback using the LPS array
             } else {
                 i++;  // No fallback possible, move to the next character in text
             }
