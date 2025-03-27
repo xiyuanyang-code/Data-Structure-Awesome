@@ -2,7 +2,7 @@
  * @Author: Xiyuan Yang   xiyuan_yang@outlook.com
  * @Date: 2025-03-27 17:25:03
  * @LastEditors: Xiyuan Yang   xiyuan_yang@outlook.com
- * @LastEditTime: 2025-03-27 17:35:24
+ * @LastEditTime: 2025-03-27 17:39:34
  * @FilePath: /Data_structure/single_files/Class_implementation/LeftistHeap.cpp
  * @Description: 
  * Do you code and make progress today?
@@ -79,5 +79,7 @@ int main(){
     for(int i = 0; i < size; i++){
         std::cout << sorted[i] << std::endl;
     }
+
+    delete [] sorted;
 
 }
