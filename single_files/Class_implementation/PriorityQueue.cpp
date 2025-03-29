@@ -1,4 +1,6 @@
 #include <iostream>
+#include <cstdlib>
+#include <ctime>
 
 template <class T>
 class priorityQueue {
@@ -104,21 +106,39 @@ void pqsort(T* unsorted, T* sorted, size_t size) {
     }
 }
 
+template <typename T>
+void heapSort(T*& arr, size_t size) {
+    //default for ascending order
+    priorityQueue<T> pq(arr, size);
+    T* sorted = new T [size];
+    for(size_t i = 0; i < size; ++i) {
+        sorted[i] = pq.deQueue();
+    }
+    delete[] arr;
+    arr = sorted;
+}
+
 int main() {
-    int size = 5;
-    int unsorted[] = {1, 4, 2, 6, 3};
-    int* sorted = new int[size];
-
-    try {
-        pqsort(unsorted, sorted, size);
-
-        for (size_t i = 0; i < size; ++i) {
-            std::cout << sorted[i] << std::endl;
-        }
-    } catch (const std::exception& e) {
-        std::cerr << "Error: " << e.what() << std::endl;
+    int size = 50;
+    int *arr = new int [size];
+    
+    //using the random seed
+    std::srand(static_cast<int>(std::time(nullptr)));
+    for(int i = 0; i < size; i++){
+        arr[i] = std::rand();
     }
 
-    delete[] sorted;
+    std::cout << "Before the sort" << std::endl;
+
+    for(int i = 0; i < size; i++){
+        std::cout << arr[i] << std::endl;
+    }
+
+    heapSort(arr, size);
+
+    std::cout << "After the sort" << std::endl;
+    for(int i = 0; i < size; ++i){
+        std::cout << arr[i] << std::endl;
+    }
     return 0;
 }
