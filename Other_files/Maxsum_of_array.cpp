@@ -42,6 +42,7 @@ double force_enumination(std::vector<double> array, int& index_left, int& index_
     return maxsum;
 }
 
+/*
 double Kadane(std::vector<double> array, int& index_left, int& index_right){
     double current_max = 0;
     double maxEndingHere;
@@ -49,7 +50,7 @@ double Kadane(std::vector<double> array, int& index_left, int& index_right){
     
     
 }
-
+*/
 
 
 //The main function is used for testing and debugging only.
