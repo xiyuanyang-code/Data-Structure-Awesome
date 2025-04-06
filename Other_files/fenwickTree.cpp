@@ -133,7 +133,7 @@ struct fenwick_2d_1{
 
     //(p,q) -> (x,y)
     long long ask_sub(int p, int q, int x, int y){
-        return ask(x, y)-ask(p - 1, y)-ask(q - 1, y)+ask(p, q);
+        return ask(x, y)-ask(p - 1, y)-ask(q - 1, y)+ask(p-1, q-1);
     }
 };
 
