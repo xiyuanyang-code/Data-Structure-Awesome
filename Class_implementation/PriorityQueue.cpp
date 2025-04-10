@@ -1,16 +1,16 @@
-#include <iostream>
 #include <cstdlib>
 #include <ctime>
+#include <iostream>
 
-template <class T>
+template<class T>
 class priorityQueue {
 private:
     size_t currentsize;
-    T* array;
+    T *array;
     size_t maxsize;
 
     void doublespace() {
-        T* tmp = array;
+        T *tmp = array;
         maxsize *= 2;
         array = new T[maxsize];
         for (size_t i = 0; i <= currentsize; ++i) {
@@ -54,7 +54,7 @@ public:
         delete[] array;
     }
 
-    priorityQueue(const T* data, size_t size) : currentsize(size), maxsize(size + 10) {
+    priorityQueue(const T *data, size_t size) : currentsize(size), maxsize(size + 10) {
         array = new T[maxsize];
         for (size_t i = 0; i < size; ++i) {
             array[i + 1] = data[i];
@@ -66,7 +66,7 @@ public:
         return currentsize == 0;
     }
 
-    void enQueue(const T& x) {
+    void enQueue(const T &x) {
         if (currentsize == maxsize - 1) {
             doublespace();
         }
@@ -98,20 +98,20 @@ public:
     }
 };
 
-template <typename T>
-void pqsort(T* unsorted, T* sorted, size_t size) {
+template<typename T>
+void pqsort(T *unsorted, T *sorted, size_t size) {
     priorityQueue<T> pq(unsorted, size);
     for (size_t i = 0; i < size; ++i) {
         sorted[i] = pq.deQueue();
     }
 }
 
-template <typename T>
-void heapSort(T*& arr, size_t size) {
+template<typename T>
+void heapSort(T *&arr, size_t size) {
     //default for ascending order
     priorityQueue<T> pq(arr, size);
-    T* sorted = new T [size];
-    for(size_t i = 0; i < size; ++i) {
+    T *sorted = new T[size];
+    for (size_t i = 0; i < size; ++i) {
         sorted[i] = pq.deQueue();
     }
     delete[] arr;
@@ -120,24 +120,24 @@ void heapSort(T*& arr, size_t size) {
 
 int main() {
     int size = 50;
-    int *arr = new int [size];
-    
+    int *arr = new int[size];
+
     //using the random seed
     std::srand(static_cast<int>(std::time(nullptr)));
-    for(int i = 0; i < size; i++){
+    for (int i = 0; i < size; i++) {
         arr[i] = std::rand();
     }
 
     std::cout << "Before the sort" << std::endl;
 
-    for(int i = 0; i < size; i++){
+    for (int i = 0; i < size; i++) {
         std::cout << arr[i] << std::endl;
     }
 
     heapSort(arr, size);
 
     std::cout << "After the sort" << std::endl;
-    for(int i = 0; i < size; ++i){
+    for (int i = 0; i < size; ++i) {
         std::cout << arr[i] << std::endl;
     }
     return 0;

@@ -1,8 +1,8 @@
-#include <string>
+#include <iomanip>
 #include <iostream>
-#include <iomanip> 
+#include <string>
 
-template <class T>
+template<class T>
 class hfTree {
 private:
     struct Node {
@@ -11,8 +11,8 @@ private:
         int parent, left, right;
     };
 
-    Node* elem;
-    int length; // Fixed size of the tree
+    Node *elem;
+    int length;// Fixed size of the tree
 
 public:
     struct hfcode {
@@ -20,9 +20,9 @@ public:
         std::string code;
     };
 
-    hfTree(const T* x, const int* w, int size) {
+    hfTree(const T *x, const int *w, int size) {
         const int MAXINT = 32767;
-        int min_1, min_2; // The lowest and second lowest weights
+        int min_1, min_2;// The lowest and second lowest weights
         int least, second_least;
 
         // Initialize
@@ -92,7 +92,7 @@ public:
     // Visualize the tree structure
     void viewTree() {
         std::cout << "Huffman Tree Structure:\n";
-        viewTreeHelper(1, 0); // Start from root (index 1) with depth 0
+        viewTreeHelper(1, 0);// Start from root (index 1) with depth 0
     }
 
 private:

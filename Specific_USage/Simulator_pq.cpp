@@ -1,9 +1,19 @@
+/*
+ * @Author: Xiyuan Yang   xiyuan_yang@outlook.com
+ * @Date: 2025-04-03 15:42:00
+ * @LastEditors: Xiyuan Yang   xiyuan_yang@outlook.com
+ * @LastEditTime: 2025-04-10 13:20:00
+ * @FilePath: /Data_structure/Specific_USage/Simulator_pq.cpp
+ * @Description: 
+ * Do you code and make progress today?
+ * Copyright (c) 2025 by Xiyuan Yang, All Rights Reserved. 
+ */
 #include <cstddef>
 #include <cstdlib>
 #include <iostream>
 #include <queue>
-#include <vector>
 #include <random>
+#include <vector>
 
 class simulator {
 private:
@@ -16,9 +26,9 @@ private:
 
     struct event {
         size_t time;
-        int type; // 0 for arriving, 1 for leaving
-        bool operator<(const event& other) const {
-            return time > other.time; // 最小堆
+        int type;// 0 for arriving, 1 for leaving
+        bool operator<(const event &other) const {
+            return time > other.time;// 最小堆
         }
     };
 
@@ -65,7 +75,7 @@ public:
             event current_event = eventQueue.top();
             eventQueue.pop();
 
-            if (current_event.type == 0) { // Arrival
+            if (current_event.type == 0) {// Arrival
                 if (server_busy < server_num) {
                     ++server_busy;
                     event departure_event{current_event.time + service_dist(rng), 1};
@@ -73,7 +83,7 @@ public:
                 } else {
                     waitQueue.push(current_event);
                 }
-            } else { // Departure
+            } else {// Departure
                 if (!waitQueue.empty()) {
                     event next_event = waitQueue.front();
                     waitQueue.pop();

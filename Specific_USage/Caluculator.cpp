@@ -1,22 +1,22 @@
-#include <iostream>
-#include <cstring>
-#include <stack>
-#include <cctype>
 #include <algorithm>
-#include <sstream>
+#include <cctype>
 #include <cmath>
+#include <cstring>
+#include <iostream>
+#include <sstream>
+#include <stack>
 using namespace std;
 
 class Calculate {
 private:
-    string expression;  // Store the user input expression
-    bool check_if_available();  // Check if the expression is valid
+    string expression;        // Store the user input expression
+    bool check_if_available();// Check if the expression is valid
 public:
     Calculate(string input_ = "No input") : expression(input_) {
         // Remove whitespace characters
         expression.erase(std::remove_if(expression.begin(), expression.end(), ::isspace), expression.end());
     }
-    double calculate_result();  // Calculate the result of the expression
+    double calculate_result();// Calculate the result of the expression
 };
 
 // Check if a character is an operator
@@ -32,22 +32,30 @@ inline bool check_Parentheses(char ch) {
 // Calculate the result of two operands based on the operator
 double cal(char op, double a, double b) {
     switch (op) {
-        case '+': return a + b;
-        case '-': return a - b;
-        case '*': return a * b;
-        case '/': return a / b;
-        case '^': return pow(a, b);
-        default: return 0;  // Default return 0
+        case '+':
+            return a + b;
+        case '-':
+            return a - b;
+        case '*':
+            return a * b;
+        case '/':
+            return a / b;
+        case '^':
+            return pow(a, b);
+        default:
+            return 0;// Default return 0
     }
 }
 
 // Perform stack operation: Pop operator and operands, calculate the result, and push it back to the stack
-void Stack_operation(stack<double>& numstack, stack<char>& opstack) {
-    char op = opstack.top();  // Pop the top operator
+void Stack_operation(stack<double> &numstack, stack<char> &opstack) {
+    char op = opstack.top();// Pop the top operator
     opstack.pop();
-    double num1 = numstack.top(); numstack.pop();  // Pop the first operand
-    double num2 = numstack.top(); numstack.pop();  // Pop the second operand
-    numstack.push(cal(op, num2, num1));  // Calculate the result and push it back to the stack
+    double num1 = numstack.top();
+    numstack.pop();// Pop the first operand
+    double num2 = numstack.top();
+    numstack.pop();                    // Pop the second operand
+    numstack.push(cal(op, num2, num1));// Calculate the result and push it back to the stack
 }
 
 // Check if the expression is valid
@@ -58,7 +66,7 @@ bool Calculate::check_if_available() {
     }
 
     int size = expression.length();
-    stack<char> parentheses;  // Used to check parenthesis matching
+    stack<char> parentheses;// Used to check parenthesis matching
 
     for (int i = 0; i < size; i++) {
         char ch = expression[i];
@@ -66,13 +74,13 @@ bool Calculate::check_if_available() {
         // Check parentheses
         if (check_Parentheses(ch)) {
             if (ch == '(') {
-                parentheses.push('(');  // Push left parenthesis onto the stack
+                parentheses.push('(');// Push left parenthesis onto the stack
             } else {
                 if (parentheses.empty() || parentheses.top() != '(') {
                     cout << "Parentheses match fault!" << endl;
                     return false;
                 }
-                parentheses.pop();  // Right parenthesis matched successfully, pop the left parenthesis
+                parentheses.pop();// Right parenthesis matched successfully, pop the left parenthesis
             }
         }
 
@@ -83,8 +91,8 @@ bool Calculate::check_if_available() {
                 return false;
             }
 
-            char prev = expression[i - 1];  // Character before the operator
-            char next = expression[i + 1];  // Character after the operator
+            char prev = expression[i - 1];// Character before the operator
+            char next = expression[i + 1];// Character after the operator
             if (!((isdigit(prev) || prev == ')') && (isdigit(next) || next == '('))) {
                 cout << "Operation Error!" << endl;
                 return false;
@@ -114,8 +122,8 @@ double Calculate::calculate_result() {
         exit(1);
     }
 
-    stack<char> opstack;  // Operator stack
-    stack<double> numstack;  // Operand stack
+    stack<char> opstack;   // Operator stack
+    stack<double> numstack;// Operand stack
     int size = expression.length();
 
     for (int i = 0; i < size; i++) {
@@ -125,19 +133,19 @@ double Calculate::calculate_result() {
         if (isdigit(ch) || ch == '.') {
             stringstream ss;
             while (i < size && (isdigit(expression[i]) || expression[i] == '.')) {
-                ss << expression[i++];  // Concatenate digits and decimal points into the string stream
+                ss << expression[i++];// Concatenate digits and decimal points into the string stream
             }
-            i--;  // Step back once because the outer loop will increment i again
+            i--;// Step back once because the outer loop will increment i again
             double num;
-            ss >> num;  // Convert the string stream to a floating-point number
-            numstack.push(num);  // Push the number onto the operand stack
+            ss >> num;         // Convert the string stream to a floating-point number
+            numstack.push(num);// Push the number onto the operand stack
         }
 
         // Handle operators and parentheses
         else {
             switch (ch) {
                 case '(':
-                    opstack.push(ch);  // Push left parenthesis directly onto the stack
+                    opstack.push(ch);// Push left parenthesis directly onto the stack
                     break;
 
                 case ')':
@@ -146,7 +154,7 @@ double Calculate::calculate_result() {
                         Stack_operation(numstack, opstack);
                     }
                     if (!opstack.empty() && opstack.top() == '(') {
-                        opstack.pop();  // Pop the left parenthesis
+                        opstack.pop();// Pop the left parenthesis
                     } else {
                         cout << "Parentheses match fault!" << endl;
                         exit(1);
@@ -162,21 +170,21 @@ double Calculate::calculate_result() {
                 case '/':
                     // Handle multiplication and division operators
                     while (!opstack.empty() && opstack.top() != '(' &&
-                        (opstack.top() == '^' || opstack.top() == '*' || opstack.top() == '/')) {
+                           (opstack.top() == '^' || opstack.top() == '*' || opstack.top() == '/')) {
                         Stack_operation(numstack, opstack);
                     }
-                    opstack.push(ch);  // Push the current operator onto the stack
+                    opstack.push(ch);// Push the current operator onto the stack
                     break;
 
                 case '+':
                 case '-':
                     // Handle addition and subtraction operators
                     while (!opstack.empty() && opstack.top() != '(' &&
-                        (opstack.top() == '^' || opstack.top() == '*' || opstack.top() == '/' ||
+                           (opstack.top() == '^' || opstack.top() == '*' || opstack.top() == '/' ||
                             opstack.top() == '+' || opstack.top() == '-')) {
                         Stack_operation(numstack, opstack);
                     }
-                    opstack.push(ch);  // Push the current operator onto the stack
+                    opstack.push(ch);// Push the current operator onto the stack
                     break;
 
                 default:
