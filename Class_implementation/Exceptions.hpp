@@ -2,7 +2,7 @@
  * @Author: Xiyuan Yang   xiyuan_yang@outlook.com
  * @Date: 2025-03-27 20:15:26
  * @LastEditors: Xiyuan Yang   xiyuan_yang@outlook.com
- * @LastEditTime: 2025-04-10 13:18:12
+ * @LastEditTime: 2025-04-12 12:03:41
  * @FilePath: /Data_structure/Class_implementation/Exceptions.hpp
  * @Description: 
  * Do you code and make progress today?
@@ -11,7 +11,6 @@
 #ifndef SJTU_EXCEPTIONS_HPP
 #define SJTU_EXCEPTIONS_HPP
 
-#include <cstddef>
 #include <cstring>
 #include <string>
 
