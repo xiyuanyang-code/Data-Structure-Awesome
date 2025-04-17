@@ -51,7 +51,7 @@ private:
          */
     char getNextSymbol() {
         char ch;
-        while (ch = NextChar()) {
+        while ((ch = NextChar()) != 0) {
             if (ch == '/') {
                 // maybe a comment!
                 ch = NextChar();
@@ -90,7 +90,7 @@ private:
         char ch, flag;
         // dealing with //
         if (type == SlashSlash) {
-            while (ch = NextChar() && ch != '\n') {
+            while ((ch = NextChar()) != 0 && ch != '\n') {
                 return;
             }
         }
@@ -116,7 +116,7 @@ private:
          */
     void skipQuote(char type) {
         char ch;
-        while (ch = NextChar()) {
+        while ((ch = NextChar()) != 0) {
             if (ch == type) {
                 return;
             } else if (ch == '\n') {
@@ -165,7 +165,7 @@ public:
         char LastChar, Match;
         // LastChar is the read character, while Match is the top element of the stack
 
-        while (LastChar = getNextSymbol()) {
+        while ((LastChar = getNextSymbol()) == 0) {
             // get symbols (comments excluded)
             switch (LastChar) {
                 case '(':

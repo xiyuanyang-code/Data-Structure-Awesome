@@ -2,7 +2,7 @@
  * @Author: Xiyuan Yang   xiyuan_yang@outlook.com
  * @Date: 2025-04-17 14:22:30
  * @LastEditors: Xiyuan Yang   xiyuan_yang@outlook.com
- * @LastEditTime: 2025-04-17 20:51:35
+ * @LastEditTime: 2025-04-17 21:11:16
  * @FilePath: /Data_structure/Class_implementation/close_Hash_Table.cpp
  * @Description: 
  * Do you code and make progress today?
@@ -131,6 +131,7 @@ public:
         } while (pos != init_pos);
     }
 };
+
 int generate_random(int range = 100000) {
     std::random_device rd;
     std::mt19937 gen(rd());
