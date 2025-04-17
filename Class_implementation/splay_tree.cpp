@@ -88,18 +88,16 @@ private:
 
         node = splay(node, key);
 
-        // we don't find the value, return directly
+        // If the key is not found, return the original tree
         if (node->key != key) return node;
 
-        // if we have found the value, then delete the root node (after splay)
+        // If the key is found, delete the root node
         if (!node->left) {
             Node *temp = node->right;
             delete node;
-            // the right subtree is the new node
             return temp;
         } else {
             Node *temp = node->left;
-            // move all the nodes to the left child
             temp = splay(temp, key);
             temp->right = node->right;
             delete node;
@@ -153,6 +151,10 @@ public:
 
     // Print the tree (in-order traversal)
     void print() {
+        if (root == nullptr) {
+            std::cout << "The Tree is empty" << std::endl;
+            return;
+        }
         printHelper(root);
         std::cout << std::endl;
     }
@@ -170,13 +172,14 @@ int main() {
     SplayTree<int, std::string> tree;
 
     // Insert elements
+    std::cout << "Inserting elements into the tree:" << std::endl;
     tree.insert(10, "Ten");
     tree.insert(20, "Twenty");
     tree.insert(30, "Thirty");
     tree.insert(5, "Five");
     tree.insert(15, "Fifteen");
-
-    std::cout << "Tree after insertion:" << std::endl;
+    tree.insert(25, "Twenty-Five");
+    tree.insert(35, "Thirty-Five");
     tree.print();
 
     // Find elements
@@ -188,9 +191,45 @@ int main() {
         std::cout << "Key not found." << std::endl;
     }
 
-    // Delete an element
+    std::cout << "\nFinding key 40 (non-existent):" << std::endl;
+    value = tree.find(40);
+    if (value) {
+        std::cout << "Found: " << *value << std::endl;
+    } else {
+        std::cout << "Key not found." << std::endl;
+    }
+
+    // Delete elements
     std::cout << "\nDeleting key 10:" << std::endl;
     tree.remove(10);
+    tree.print();
+
+    std::cout << "\nDeleting key 30:" << std::endl;
+    tree.remove(30);
+    tree.print();
+
+    std::cout << "\nDeleting key 5:" << std::endl;
+    tree.remove(5);
+    tree.print();
+
+    std::cout << "\nDeleting key 40 (non-existent):" << std::endl;
+    tree.remove(40);
+    tree.print();
+
+    // Edge case: Insert duplicate key
+    std::cout << "\nInserting duplicate key 20 with new value 'Updated Twenty':" << std::endl;
+    tree.insert(20, "Updated Twenty");
+    tree.print();
+
+    // Edge case: Insert into an empty tree
+    std::cout << "\nClearing the tree and inserting into an empty tree:" << std::endl;
+    tree.remove(15);
+    tree.remove(25);
+    tree.remove(35);
+    tree.remove(20);
+    tree.print();
+
+    tree.insert(50, "Fifty");
     tree.print();
 
     return 0;
