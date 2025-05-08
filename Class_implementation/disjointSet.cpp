@@ -29,6 +29,12 @@ public:
         delete parent;
     }
 
+    /**
+     * @brief Union two subtree, merged by scale
+     * 
+     * @param root1 
+     * @param root2 
+     */
     void Union(int root1, int root2) {
         if (root1 == root2) {
             return;
