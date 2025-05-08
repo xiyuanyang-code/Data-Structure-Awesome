@@ -1,7 +1,7 @@
 #include <cstddef>
 #include <iostream>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
 using namespace std;
 
@@ -57,11 +57,14 @@ private:
         for (int neighbor : adj[node]) {
             if (neighbor == parent_node) continue;
             dfs(neighbor, node, ds);
-            ds.Union(node, neighbor); // Merge child into current node
+            // Merge child's set into current node's set
+            int root_node = ds.Find(node);
+            int root_neighbor = ds.Find(neighbor);
+            ds.Union(root_node, root_neighbor);
+            // Update ancestor of the new root to current node
+            int new_root = ds.Find(root_node);
+            ancestor[new_root] = node;
         }
-
-        // After merging, set the ancestor of this node to itself
-        ancestor[node] = node;
 
         // Process all queries associated with this node
         for (auto &q : queries[node]) {
@@ -69,15 +72,18 @@ private:
             int idx = q.second;
 
             if (visited[v]) {
-                int root = ds.Find(v); // Get the representative of v's set
-                int lca = ancestor[root]; // Use the stored ancestor
-                lcaResult[idx] = lca;
+                int root = ds.Find(v);          // Get the representative of v's set
+                lcaResult[idx] = ancestor[root]; // Use the stored ancestor
             }
         }
     }
 
 public:
-    TarjanLCA(int n) : adj(n), visited(n, false), queries(n), ancestor(n, -1) {}
+    TarjanLCA(int n) : adj(n), visited(n, false), queries(n), ancestor(n) {
+        for (int i = 0; i < n; ++i) {
+            ancestor[i] = i; // Initialize each node's ancestor to itself
+        }
+    }
 
     void addEdge(int u, int v) {
         adj[u].push_back(v);
@@ -95,7 +101,11 @@ public:
 
         cout << "\nComputed LCA results:\n";
         for (int i = 0; i < queryCount; ++i) {
-            cout << "LCA of query[" << i << "] is " << lcaResult[i] << endl;
+            if (lcaResult.find(i) != lcaResult.end()) {
+                cout << "LCA of query[" << i << "] is " << lcaResult[i] << endl;
+            } else {
+                cout << "LCA of query[" << i << "] is not found!" << endl;
+            }
         }
     }
 };
@@ -116,10 +126,10 @@ int main() {
     solver.addEdge(7, 9);
 
     // Add some LCA queries
-    solver.addQuery(3, 4, 0);   // Expected: 1
-    solver.addQuery(3, 9, 1);   // Expected: 0
-    solver.addQuery(8, 9, 2);   // Expected: 5
-    solver.addQuery(7, 0, 3);   // Expected: 0
+    solver.addQuery(3, 4, 0); // Expected: 1
+    solver.addQuery(3, 9, 1); // Expected: 0
+    solver.addQuery(8, 9, 2); // Expected: 5
+    solver.addQuery(7, 0, 3); // Expected: 0
 
     // Run Tarjan's algorithm from root node (0)
     solver.computeLCA(0, 4);
