@@ -144,9 +144,11 @@ public:
     }
 
     void insert(Ver x, Ver y, Edge w) {
+        // !fix: We need no-directed graph
         int u = find(x);
         int v = find(y);
         verlist[u].head = new EdgeNode(v, w, verlist[u].head);
+        verlist[v].head = new EdgeNode(u, w, verlist[v].head);
         ++Edges;
     }
 
@@ -196,7 +198,7 @@ int main() {
 
     // Add edges to the graph (u, v, weight)
     graph.insert('A', 'B', 4);
-    graph.insert('A', 'F', 2);
+    graph.insert('F', 'A', 2);
     graph.insert('B', 'C', 6);
     graph.insert('B', 'F', 5);
     graph.insert('C', 'D', 3);
