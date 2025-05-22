@@ -1,7 +1,7 @@
-#include <iostream>
 #include <climits>
+#include <iostream>
 
-#define MAX_NODES 100  // Maximum number of nodes in the graph
+#define MAX_NODES 100// Maximum number of nodes in the graph
 
 class FloydWarshall {
 private:
@@ -34,7 +34,7 @@ public:
     }
 
     void addEdge(int source, int destination, int weight) {
-        if (source >= 0 && source < numNodes && 
+        if (source >= 0 && source < numNodes &&
             destination >= 0 && destination < numNodes) {
             distance[source][destination] = weight;
             next[source][destination] = destination;
@@ -45,8 +45,8 @@ public:
         for (int k = 0; k < numNodes; k++) {
             for (int i = 0; i < numNodes; i++) {
                 for (int j = 0; j < numNodes; j++) {
-                    if (distance[i][k] != INT_MAX && 
-                        distance[k][j] != INT_MAX && 
+                    if (distance[i][k] != INT_MAX &&
+                        distance[k][j] != INT_MAX &&
                         distance[i][j] > distance[i][k] + distance[k][j]) {
                         distance[i][j] = distance[i][k] + distance[k][j];
                         next[i][j] = next[i][k];
@@ -57,29 +57,29 @@ public:
     }
 
     void printShortestPath(int source, int destination) {
-        if (source < 0 || source >= numNodes || 
+        if (source < 0 || source >= numNodes ||
             destination < 0 || destination >= numNodes) {
             std::cout << "Invalid node indices." << std::endl;
             return;
         }
 
         if (distance[source][destination] == INT_MAX) {
-            std::cout << "No path exists from node " << source 
+            std::cout << "No path exists from node " << source
                       << " to node " << destination << "." << std::endl;
             return;
         }
 
-        std::cout << "Shortest path from node " << source 
+        std::cout << "Shortest path from node " << source
                   << " to node " << destination << ": ";
         std::cout << source;
-        
+
         int current = source;
         while (current != destination) {
             current = next[current][destination];
             std::cout << " -> " << current;
         }
 
-        std::cout << "\nTotal distance: " << distance[source][destination] 
+        std::cout << "\nTotal distance: " << distance[source][destination]
                   << std::endl;
     }
 
@@ -116,10 +116,10 @@ int main() {
     // Print results
     fw.printAllPairs();
     std::cout << std::endl;
-    
+
     // Print specific paths
     fw.printShortestPath(0, 3);
-    fw.printShortestPath(1, 0);  // No path case
+    fw.printShortestPath(1, 0);// No path case
 
     return 0;
 }
