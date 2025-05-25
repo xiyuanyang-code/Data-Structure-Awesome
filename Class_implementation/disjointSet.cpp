@@ -35,7 +35,9 @@ public:
      * @param root1 
      * @param root2 
      */
-    void Union(int root1, int root2) {
+    void Union(int x, int y) {
+        int root1 = Find(x);
+        int root2 = Find(y);
         if (root1 == root2) {
             return;
         }
