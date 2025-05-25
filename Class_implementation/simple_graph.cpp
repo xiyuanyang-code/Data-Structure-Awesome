@@ -14,6 +14,9 @@ Edge edges[MAXM];
 int head[MAXN];
 int cnt;
 
+bool bfs_visited[MAXN] = {false};
+bool dfs_visited[MAXN];
+
 void init() {
     memset(head, -1, sizeof(head));
 }
@@ -34,12 +37,11 @@ void remove(int from, int to) {
 
 
 void bfs(int start) {
-    bool visited[MAXN] = {false};
     int q[MAXN];
     int front = 0, rear = 0;
 
     q[rear++] = start;
-    visited[start] = true;
+    bfs_visited[start] = true;
 
     while (front < rear) {
         int u = q[front++];
@@ -48,16 +50,14 @@ void bfs(int start) {
         for (int i = head[u]; i != -1; i = edges[i].next) {
             if (!edges[i].valid) continue;
             int v = edges[i].to;
-            if (!visited[v]) {
-                visited[v] = true;
+            if (!bfs_visited[v]) {
+                bfs_visited[v] = true;
                 q[rear++] = v;
             }
         }
     }
 }
 
-
-bool dfs_visited[MAXN];
 
 void dfs(int u) {
     dfs_visited[u] = true;

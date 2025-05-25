@@ -23,7 +23,9 @@ public:
         delete[] parent;
     }
 
-    void Union(int root1, int root2) {
+    void Union(int x, int y) {
+        int root1 = Find(x);
+        int root2 = Find(y);
         if (root1 == root2) return;
 
         if (parent[root1] > parent[root2]) {
@@ -48,7 +50,7 @@ private:
     vector<vector<pair<int, int>>> queries;
     unordered_map<int, int> lcaResult;
     vector<bool> visited;
-    vector<int> ancestor; // Maps each node to its current ancestor in the tree
+    vector<int> ancestor;// Maps each node to its current ancestor in the tree
 
     void dfs(int node, int parent_node, disjointSet &ds) {
         visited[node] = true;
@@ -73,7 +75,7 @@ private:
 
             if (visited[v]) {
                 int root = ds.Find(v);          // Get the representative of v's set
-                lcaResult[idx] = ancestor[root]; // Use the stored ancestor
+                lcaResult[idx] = ancestor[root];// Use the stored ancestor
             }
         }
     }
@@ -81,7 +83,7 @@ private:
 public:
     TarjanLCA(int n) : adj(n), visited(n, false), queries(n), ancestor(n) {
         for (int i = 0; i < n; ++i) {
-            ancestor[i] = i; // Initialize each node's ancestor to itself
+            ancestor[i] = i;// Initialize each node's ancestor to itself
         }
     }
 
@@ -126,10 +128,10 @@ int main() {
     solver.addEdge(7, 9);
 
     // Add some LCA queries
-    solver.addQuery(3, 4, 0); // Expected: 1
-    solver.addQuery(3, 9, 1); // Expected: 0
-    solver.addQuery(8, 9, 2); // Expected: 5
-    solver.addQuery(7, 0, 3); // Expected: 0
+    solver.addQuery(3, 4, 0);// Expected: 1
+    solver.addQuery(3, 9, 1);// Expected: 0
+    solver.addQuery(8, 9, 2);// Expected: 5
+    solver.addQuery(7, 0, 3);// Expected: 0
 
     // Run Tarjan's algorithm from root node (0)
     solver.computeLCA(0, 4);
