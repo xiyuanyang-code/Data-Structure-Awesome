@@ -8,11 +8,17 @@ Toy implementation of Data Structure.
 
 ### Algorithms
 
-- `DFS.cpp`: Graph algorithms for **Depth-First-Search** algorithms, including DFF order and euler order.
+- `DFS.cpp`: Graph algorithms for **Depth-First-Search** algorithms, including DFS order and euler order.
 
-- `FenwickTree.cpp`: Algorithms for the fenwick Tree.
+- `BFS.cpp`: Graph algorithms for **Breadth-First-Search** algorithms.
 
-- `Josephus.cpp`: Circled linked list for Josephus Problems.
+- `Eulerian.cpp`: Algorithms for finding eulerian cycles using **DFS**.
+
+- `Floyd.cpp`: Floyd algorithms for solving multi-source shortest path algorithms in graph theory.
+
+- `fenwickTree.cpp`: Algorithms for the fenwick Tree.
+
+- `Josephus.cpp`: Circled linked list for Josephus Problems. (==To be done in the future==)
 
 - `Maxsum_of_array.cpp`: Algorithms for the Maxsum of array algorithms.
 
