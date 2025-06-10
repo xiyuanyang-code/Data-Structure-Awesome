@@ -10,6 +10,69 @@ It also functions as **lecture notes and assignments** for **SJTU’s CS-0501H c
 
 ## Table of Contents
 
+```plaintext
+.
+├── Algorithms
+│   ├── BFS.cpp
+│   ├── DAG_SSSP.cpp
+│   ├── DFS.cpp
+│   ├── Eulerian_path.cpp
+│   ├── Floyd.cpp
+│   ├── Josephus.cpp
+│   ├── Kruskal.cpp
+│   ├── LCA.cpp
+│   ├── LCA2.cpp
+│   ├── LCA3.cpp
+│   ├── Maxsum_of_array.cpp
+│   ├── Prim.cpp
+│   ├── ST_RMQ.cpp
+│   ├── Segment_Tree.cpp
+│   ├── Sorting.cpp
+│   ├── Sorting_modified.cpp
+│   └── fenwickTree.cpp
+├── Class_implementation
+│   ├── AVLTree.cpp
+│   ├── BST.cpp
+│   ├── BinomialHeap.cpp
+│   ├── Exceptions.hpp
+│   ├── LeftistHeap.cpp
+│   ├── PriorityQueue.cpp
+│   ├── Queue.cpp
+│   ├── RBT.cpp
+│   ├── Set.cpp
+│   ├── SkewHeap.cpp
+│   ├── String.cpp
+│   ├── Tree.cpp
+│   ├── Vector.hpp
+│   ├── algorithm.hpp
+│   ├── close_Hash_Table.cpp
+│   ├── disjointSet.cpp
+│   ├── graph.cpp
+│   ├── heap.cpp
+│   ├── linked_hashmap.hpp
+│   ├── list.hpp
+│   ├── map.hpp
+│   ├── open_Hash_Table.cpp
+│   ├── simple_graph.cpp
+│   ├── splay_tree.cpp
+│   └── utility.hpp
+├── Specific_USage
+│   ├── Bracket_matching.cpp
+│   ├── Bucket_usage.cpp
+│   ├── Calculator2.cpp
+│   ├── Caluculator.cpp
+│   ├── HfTree.cpp
+│   ├── Memory.cpp
+│   ├── Puzzle_Creation.cpp
+│   ├── Simulator_pq.cpp
+│   ├── Usage_for_DST.cpp
+│   ├── longlongInt.cpp
+│   └── test.txt
+└── README.md
+```
+
+## Codes
+
 ### Algorithms
 
 This section is a comprehensive collection of classic algorithms, ranging from graph traversals to sorting techniques, all implemented in C++. Each file represents a direct and often optimized approach to solving common computational problems.
