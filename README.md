@@ -6,6 +6,9 @@ Welcome to STLite—a personal passion project where I implement fundamental dat
 
 It also functions as **lecture notes and assignments** for **SJTU’s CS-0501H course**. Feel free to use this code as a reference for your own data structures learning journey!😊😊😊
 
+feat: Several tutorials can be seen via blog posts: [Data Structures Tutorials](https://xiyuanyang-code.github.io/categories/Algorithm/SJTU-CS0501-H-Data-Structure)
+
+
 ---
 
 ## Table of Contents
